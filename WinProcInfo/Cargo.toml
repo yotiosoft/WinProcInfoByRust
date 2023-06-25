@@ -1,5 +1,5 @@
 [package]
-name = "WinProcInfo"
+name = "win_proc_info"
 version = "0.1.0"
 edition = "2021"
 
