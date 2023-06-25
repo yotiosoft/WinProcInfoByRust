@@ -2,17 +2,7 @@ use winapi::ctypes::*;
 use winapi::um::memoryapi::*;
 use winapi::um::processthreadsapi::*;
 use winapi::um::winnt::{ MEM_COMMIT, MEM_RELEASE, PAGE_EXECUTE_READWRITE };
-use winapi::um::errhandlingapi::GetLastError;
 use ntapi::ntexapi::*;
-
-// 構造体にメモリから値を取得して格納する
-fn fill_structure_from_memory<T>(struct_ptr: &mut T, memory_ptr: *const c_void, process_handle: *mut c_void) -> i32 {
-    unsafe {
-        let mut bytes_read: usize = 0;
-        let res = ReadProcessMemory(process_handle, memory_ptr, struct_ptr as *mut _ as *mut c_void, std::mem::size_of::<T>(), &mut bytes_read);
-        return res;
-    }
-}
 
 // SystemProcessInformation を buffer に取得
 fn get_system_process_information(mut buffer_size: u32) -> *mut c_void {
@@ -60,10 +50,10 @@ fn main() {
             next_address += system_process_info.NextEntryOffset as isize;
 
             // base_address の該当オフセット値から SYSTEM_PROCESS_INFORMATION 構造体の情報をプロセス1つ分取得
-            if fill_structure_from_memory(&mut system_process_info, next_address as *const c_void, GetCurrentProcess()) == 0 {
-                let err = GetLastError();
-                panic!("fill_structure_from_memory failed: {}", err);
-            }
+            ReadProcessMemory(
+                GetCurrentProcess(), next_address as *const c_void, &mut system_process_info as *mut _ as *mut c_void, 
+                std::mem::size_of::<SYSTEM_PROCESS_INFORMATION>() as usize, std::ptr::null_mut()
+            );
             
             // プロセス名を取得
             let mut image_name_vec: Vec<u16> = vec![0; system_process_info.ImageName.Length as usize];
