@@ -5,7 +5,7 @@ use winapi::um::winnt::{ MEM_COMMIT, MEM_RELEASE, PAGE_EXECUTE_READWRITE };
 use ntapi::ntexapi::*;
 
 // SystemProcessInformation を buffer に取得
-fn get_system_processes_info(mut buffer_size: u32) -> *mut c_void {
+fn get_system_procs_info(mut buffer_size: u32) -> *mut c_void {
     unsafe {
         let mut base_address = VirtualAlloc(std::ptr::null_mut(), buffer_size as usize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 
@@ -71,7 +71,7 @@ fn get_proc_id(proc_info: SYSTEM_PROCESS_INFORMATION) -> u32 {
 fn main() {
     unsafe {
         // プロセス情報を取得
-        let base_address = get_system_processes_info(0x10000);
+        let base_address = get_system_procs_info(0x10000);
 
         // base_address に取得したプロセス情報を SYSTEM_PROCESS_INFORMATION 構造体 system_process_info に格納
         let mut system_process_info = get_proc_info(base_address as isize);
