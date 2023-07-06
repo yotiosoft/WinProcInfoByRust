@@ -31,7 +31,7 @@ fn get_system_procs_info(mut buffer_size: u32) -> *mut c_void {
             base_address = VirtualAlloc(std::ptr::null_mut(), buffer_size as usize, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
         }
 
-        return base_address;
+        base_address
     }
 }
 
@@ -57,10 +57,8 @@ fn get_proc_name(proc_info: SYSTEM_PROCESS_INFORMATION) -> String {
             GetCurrentProcess(), proc_info.ImageName.Buffer as *const c_void, image_name_vec.as_mut_ptr() as *mut c_void, 
             proc_info.ImageName.Length as usize, std::ptr::null_mut()
         );
-        // \0 を除去
-        let proc_name = String::from_utf16_lossy(&image_name_vec).trim_matches(char::from(0)).to_string();
-
-        proc_name
+        // \0 を除去して return
+        String::from_utf16_lossy(&image_name_vec).trim_matches(char::from(0)).to_string()
     }
 }
 
